@@ -1,0 +1,25 @@
+{
+  "name": "바이브 룸 (Vibe Room)",
+  "short_name": "바이브룸",
+  "description": "바이브 코딩 링크 & 할 일 실시간 관리 허브",
+  "start_url": "/vibe/",
+  "scope": "/vibe/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#090d16",
+  "theme_color": "#090d16",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

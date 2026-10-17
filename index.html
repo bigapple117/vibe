@@ -4,47 +4,74 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>바이브 룸 (Vibe Room)</title>
-  <meta http-equiv="refresh" content="0; url=https://horse-foundation-exam-barn.trycloudflare.com">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  
+  <meta name="theme-color" content="#090d16">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="바이브 룸">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
-  <script>
-    const TARGET_URL = "https://horse-foundation-exam-barn.trycloudflare.com";
-    if (TARGET_URL && TARGET_URL.startsWith("http")) {
-      window.location.replace(TARGET_URL);
-    }
-  </script>
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
+    html, body {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
       background: #090d16;
-      color: #f1f5f9;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      min-height: 100vh;
+      color: #f1f5f9;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* 전체 화면 매끄러운 아이프레임 */
+    #vibe-frame {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      border: 0;
+      outline: 0;
+      display: block;
+      background: #090d16;
+    }
+
+    /* 초기 로딩 화면 */
+    #loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: #090d16;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      z-index: 100;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
       padding: 24px;
       text-align: center;
     }
+    #loading-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
     .card {
       background: rgba(30, 41, 59, 0.7);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 24px;
-      padding: 36px 28px;
-      max-width: 400px;
+      padding: 32px 24px;
+      max-width: 380px;
       width: 100%;
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     }
     .icon {
-      font-size: 48px;
-      margin-bottom: 16px;
+      font-size: 44px;
+      margin-bottom: 14px;
       display: inline-block;
       animation: float 2s ease-in-out infinite;
     }
@@ -53,10 +80,9 @@
       50% { transform: translateY(-6px); }
     }
     h1 {
-      font-size: 20px;
+      font-size: 19px;
       font-weight: 800;
-      letter-spacing: -0.02em;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       background: linear-gradient(135deg, #a5b4fc, #c084fc);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -65,7 +91,7 @@
       font-size: 13px;
       color: #94a3b8;
       line-height: 1.5;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
     .spinner {
       width: 28px;
@@ -74,41 +100,243 @@
       border-top-color: #6366f1;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
-      margin: 0 auto 20px;
+      margin: 0 auto;
     }
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
-    .btn {
+
+    /* 우측 상단 플로팅 컨트롤 바 (접이식) */
+    #floating-bar {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 30px;
+      padding: 4px 6px 4px 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      font-size: 11px;
+      transition: all 0.25s ease;
+      opacity: 0.9;
+    }
+    #floating-bar:hover, #floating-bar:focus-within {
+      opacity: 1;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+    }
+    .badge-title {
+      font-weight: 700;
+      color: #c7d2fe;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .bar-btn {
+      background: rgba(99, 102, 241, 0.2);
+      border: 1px solid rgba(129, 140, 248, 0.3);
+      color: #e0e7ff;
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 8px;
-      width: 100%;
-      padding: 14px 20px;
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 700;
-      border-radius: 16px;
-      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-      transition: all 0.2s;
+      gap: 4px;
+      transition: background 0.15s;
     }
-    .btn:active {
-      transform: scale(0.97);
+    .bar-btn:hover {
+      background: rgba(99, 102, 241, 0.4);
+    }
+    .bar-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* 삼성 인터넷 홈화면 고정 가이드 모달 */
+    #guide-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s;
+      padding: 20px;
+    }
+    #guide-modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .guide-box {
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 24px;
+      max-width: 360px;
+      width: 100%;
+      text-align: left;
+    }
+    .guide-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .step-num {
+      width: 24px;
+      height: 24px;
+      background: #6366f1;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-text {
+      font-size: 13px;
+      color: #cbd5e1;
+      line-height: 1.4;
+    }
+    .step-text strong {
+      color: #fff;
+    }
+    .close-btn {
+      width: 100%;
+      padding: 12px;
+      background: #4f46e5;
+      color: #fff;
+      border: 0;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 8px;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="icon">✨</div>
-    <h1>바이브 룸 연결 중...</h1>
-    <p>오라클 서버의 최신 클라우드플레어 터널로<br>1초 내에 안전하게 자동 이동합니다.</p>
-    <div class="spinner"></div>
-    <a class="btn" href="https://horse-foundation-exam-barn.trycloudflare.com">
-      <span>🚀 바로 이동하기</span>
+
+  <!-- 우측 상단 플로팅 메뉴 -->
+  <div id="floating-bar">
+    <span class="badge-title" onclick="toggleFloatingFull()">✨ 고정 게이트웨이</span>
+    <button class="bar-btn" id="install-btn" onclick="handleInstallClick()">
+      📲 홈 화면 고정
+    </button>
+    <a class="bar-btn" id="direct-btn" href="https://horse-foundation-exam-barn.trycloudflare.com" target="_blank" rel="noopener noreferrer">
+      🌐 직통 열기
     </a>
   </div>
+
+  <!-- 전체 화면 아이프레임 (주소 변경 없이 상시 작동) -->
+  <iframe 
+    id="vibe-frame" 
+    src="https://horse-foundation-exam-barn.trycloudflare.com" 
+    allow="camera; microphone; clipboard-read; clipboard-write; geolocation; fullscreen; display-capture"
+    title="Vibe Room"
+  ></iframe>
+
+  <!-- 초기 로딩 화면 -->
+  <div id="loading-overlay">
+    <div class="card">
+      <div class="icon">✨</div>
+      <h1>바이브 룸 연결 중...</h1>
+      <p>오라클 클라우드 최신 서버와<br>안전하게 연결하고 있습니다.</p>
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <!-- 삼성 인터넷 홈화면 고정 가이드 팝업 -->
+  <div id="guide-modal" onclick="closeGuideModal(event)">
+    <div class="guide-box" onclick="event.stopPropagation()">
+      <h3 style="font-size: 17px; font-weight: 800; margin-bottom: 14px; color: #fff;">
+        📲 삼성 인터넷 홈 화면 고정 방법
+      </h3>
+      <div class="guide-step">
+        <div class="step-num">1</div>
+        <div class="step-text">화면 우측 하단 <strong>메뉴 (≡)</strong>를 누릅니다.<br>(또는 상단 주소창의 <strong>[↓] 앱 설치</strong> 아이콘)</div>
+      </div>
+      <div class="guide-step">
+        <div class="step-num">2</div>
+        <div class="step-text"><strong>[현재 페이지 추가]</strong> 메뉴를 누릅니다.</div>
+      </div>
+      <div class="guide-step">
+        <div class="step-num">3</div>
+        <div class="step-text"><strong>[홈 화면]</strong>을 선택하고 <strong>[추가]</strong>를 누르면 <strong>평생 바뀌지 않는 바로가기</strong>가 생성됩니다!</div>
+      </div>
+      <button class="close-btn" onclick="document.getElementById('guide-modal').classList.remove('active')">
+        확인 완료
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const TARGET_URL = "https://horse-foundation-exam-barn.trycloudflare.com";
+
+    // 1. 아이프레임 로드 완료 시 로딩창 제거
+    const frame = document.getElementById('vibe-frame');
+    const loadingOverlay = document.getElementById('loading-overlay');
+
+    frame.onload = () => {
+      setTimeout(() => {
+        loadingOverlay.classList.add('hidden');
+      }, 250);
+    };
+
+    // 타임아웃 백업 (5초 이상 걸려도 로딩창 자동 해제)
+    setTimeout(() => {
+      loadingOverlay.classList.add('hidden');
+    }, 5000);
+
+    // 2. Service Worker 등록 (PWA 앱 설치 지원)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+
+    // 3. PWA 설치 프롬프트 이벤트 감지
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    function handleInstallClick() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => {
+          deferredPrompt = null;
+        });
+      } else {
+        // 삼성 인터넷 등에서 가이드 모달 표시
+        document.getElementById('guide-modal').classList.add('active');
+      }
+    }
+
+    function closeGuideModal(e) {
+      if (e.target.id === 'guide-modal') {
+        document.getElementById('guide-modal').classList.remove('active');
+      }
+    }
+
+    // 4. 모바일 독립 앱(PWA Standalone)으로 실행 시 플로팅 바 자동 최소화
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+      const bar = document.getElementById('floating-bar');
+      if (bar) bar.style.display = 'none';
+    }
+  </script>
 </body>
 </html>
