@@ -28,11 +28,25 @@
       -webkit-font-smoothing: antialiased;
     }
 
+    body {
+      display: flex;
+      flex-direction: column;
+      padding-top: constant(safe-area-inset-top);
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: constant(safe-area-inset-bottom);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      padding-left: constant(safe-area-inset-left);
+      padding-left: env(safe-area-inset-left, 0px);
+      padding-right: constant(safe-area-inset-right);
+      padding-right: env(safe-area-inset-right, 0px);
+    }
+
     /* 화면 전체를 가득 채우는 제로 딜레이 아이프레임 */
     #vibe-frame {
       width: 100%;
       height: 100%;
-      height: 100dvh;
+      flex: 1;
+      min-height: 0;
       border: 0;
       outline: 0;
       display: block;
