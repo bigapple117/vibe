@@ -49,28 +49,52 @@
   ></iframe>
 
   <script>
-    // PWA Service Worker 등록
+    // 1. PWA Service Worker 등록
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(() => {});
     }
 
-    // Expo Go 앱 스킴 최상단 프레임 실행 리스너 (아이프레임 내 차단 우회)
-    window.addEventListener('message', (event) => {
-      if (event.data && event.data.type === 'OPEN_EXPO' && event.data.url) {
-        window.location.href = event.data.url;
-      }
-    });
+    // 2. 게이트웨이(1차 도메인)에 영구 저장된 로그인/PIN 상태 복원하여 아이프레임에 자동 전달!
+    const isAuthed = localStorage.getItem('vibe_auth') === 'true';
+    const savedPin = localStorage.getItem('vibe_saved_pin') || '';
+    const iframe = document.getElementById('vibe-frame');
 
     // URL 쿼리에 expo_url이 포함된 경우 바로 연결 센터로 이동
     const urlParams = new URLSearchParams(window.location.search);
     const targetExpoUrl = urlParams.get('expo_url');
     if (targetExpoUrl) {
       const targetName = urlParams.get('name') || '';
-      const iframe = document.getElementById('vibe-frame');
       if (iframe) {
         iframe.src = 'https://photographers-hometown-identify-sells.trycloudflare.com/expo-launch?url=' + encodeURIComponent(targetExpoUrl) + '&name=' + encodeURIComponent(targetName);
       }
+    } else if (iframe && isAuthed) {
+      const currentSrc = iframe.src;
+      const delimiter = currentSrc.includes('?') ? '&' : '?';
+      iframe.src = currentSrc + delimiter + 'auth=1' + (savedPin ? '&saved_pin=' + encodeURIComponent(savedPin) : '');
     }
+
+    // 3. 메시지 이벤트 수신 (Expo 앱 실행 및 로그인 상태 영구 동기화)
+    window.addEventListener('message', (event) => {
+      if (!event.data) return;
+
+      // Expo Go 앱 스킴 최상단 프레임 실행 리스너 (아이프레임 내 차단 우회)
+      if (event.data.type === 'OPEN_EXPO' && event.data.url) {
+        window.location.href = event.data.url;
+      }
+
+      // 로그인 인증 상태 영구 동기화 (아이폰 사파리 ITP 스토리지 삭제 방어)
+      if (event.data.type === 'SET_AUTH') {
+        if (event.data.auth) {
+          localStorage.setItem('vibe_auth', 'true');
+          if (event.data.pin) localStorage.setItem('vibe_saved_pin', event.data.pin);
+          if (event.data.role) localStorage.setItem('vibe_role', event.data.role);
+        } else {
+          localStorage.removeItem('vibe_auth');
+          localStorage.removeItem('vibe_saved_pin');
+          localStorage.removeItem('vibe_role');
+        }
+      }
+    });
   </script>
 </body>
 </html>
