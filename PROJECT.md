@@ -35,10 +35,19 @@
 - 터널 주소는 바뀔 수 있으므로 모바일 확인 링크는 운영 반영 후 실제 주소로 보고합니다.
 
 ## 협업 문서와 담당
-- 구현·수정 담당: **Codex**
-- 검토 담당: **Antigravity / Gemini**
-- 배포 담당: **Codex** (검토와 필요한 검증 완료 후 기존 승인 범위에서 수행)
+- 구현·수정 담당: **Antigravity / Gemini**
+- 검토 담당: **Codex** (일반 기능은 기능 단위, 고위험 변경은 운영 반영 전; 작은 수정은 Gemini 단독)
+- 배포 담당: **Antigravity / Gemini** (검토와 필요한 검증 완료 후 기존 승인 범위에서 수행)
 - 공통 작업 규칙: `AGENTS.md`의 CODEX-GEMINI COLLABORATION 블록. 공통 `GEMINI.md`도 이를 읽도록 연결되어 있습니다.
 - 현재 작업·변경 이유·커밋·검증·남은 작업: `HANDOFF.md`
-- 실제 Gemini 검토 응답: `REVIEW.md` (해당 파일의 검토 범위와 시각을 확인)
+- 실제 독립 검토 응답 (과거 Gemini / 이후 Codex): `REVIEW.md` (해당 파일의 검토 범위와 시각을 확인)
 - 실행 방법·구조·서비스명이 바뀌면 구현 담당이 이 문서를 같은 작업에서 갱신합니다.
+
+
+<!-- BEGIN CODEX-GEMINI BRIDGE -->
+## Codex 원격 전달 사용 (Codex 단순 중계 / Gemini 완결)
+- Codex 원격 채팅에서는 Codex가 단순 전달자로 동작하여 사용자의 프롬프트(질문·설명·탐색·구현·검증)를 그대로 Gemini (`gemini-3.8-flash-high`)에 전달하고, Gemini의 최종 응답을 요약/수정 없이 그대로 사용자에게 전달합니다.
+- Codex의 자동 재검토/소스 재검사를 생략하고 Gemini가 자체 검증을 완료합니다. Gemini 사용량 소진 시 임의 대체 없이 멈추고 사용자 지시를 대기합니다.
+- 전달·상태·중단 절차: `/home/ubuntu/.codex/gemini-bridge/README.md` 및 AGENTS.md의 CODEX-GEMINI BRIDGE 블록.
+- 동일 프로젝트의 다른 창구 동시 수정을 피하고, 기존 배포 승인 범위와 검토 기준을 유지합니다.
+<!-- END CODEX-GEMINI BRIDGE -->
