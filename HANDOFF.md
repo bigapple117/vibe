@@ -56,12 +56,8 @@
 - 공통 규칙: AGENTS.md 및 `/home/ubuntu/.gemini/COLLABORATION.md`. 기존 작업자·검토 결과·커밋은 과거 작업 기록으로 보존합니다. 진행 중인 작업을 다른 도구가 동시에 수정하지 않습니다.
 - 이번 변경 담당: Codex (사용자가 요청한 역할 설정 변경). 앱 구현·배포·재시작은 수행하지 않았습니다. 이 설정 변경은 Codex 자체 문서 검증이며 별도 AI 검토는 요청하지 않았습니다.
 
-
-<!-- BEGIN CODEX-GEMINI BRIDGE -->
-## Codex 원격 전달 연결 (단순 중계 / Gemini 단독 완결)
-- 사용자 지시에 따라 Codex는 단순 전달자로 동작하고, Gemini 3.8 Flash가 질문·설명·탐색·구현·자체 검증·답변을 완결합니다.
-- Codex는 추가 독립 검토나 재검사를 자동 수행하지 않으며 Gemini 응답을 원문 그대로 전달합니다 (사용자의 명시적 직접 검토 지시만 예외).
-- 도구: `/home/ubuntu/.codex/gemini-bridge/bridge.py`. 프로젝트 경로와 Codex 스레드별로 세션을 분리하며, Gemini 토큰 소진 시 Codex 자동 대체 없이 중단합니다.
-- 이 설정 변경은 사용자 승인 운영 규칙에 따라 반영되었습니다. 과거의 작업자·커밋·검토 기록은 사실로 보존되며, 임의 배포나 서비스 재시작을 수행한 것이 아닙니다.
-- 전달 도구 검증 기록: `/home/ubuntu/.codex/gemini-bridge/VALIDATION.md`.
-<!-- END CODEX-GEMINI BRIDGE -->
+## 기본 역할 전환: Claude 메인 — 2026-10-31
+- 지시자: 사용자 ("Antigravity/Gemini 메인에서 Claude 메인으로 전환"). 작업자: Claude. 검토자: 없음 (문서 역할 표기만 변경, 앱 코드 변경 없음).
+- 새 기본값: Claude 총괄·구현·배포 / Gemini 조사(읽기 전용) / Codex 리뷰·테스트. 규칙 원본은 AGENTS.md의 AI-TEAM 블록입니다.
+- 이 항목 이전의 "Gemini를 메인으로 사용" 등 역할 기록은 과거 기록으로만 보존하고, 현재 기준은 이 항목입니다.
+- 변경 파일: PROJECT.md 담당 표기 (해당되는 프로젝트만), HANDOFF.md. 앱 배포·서비스 재시작은 하지 않았습니다.
